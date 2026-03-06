@@ -13,4 +13,20 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+
+  jobs Job[]
+}
+
+model Job {
+  id        Int      @id @default(autoincrement())
+  title     String
+  company   String
+  status    String
+  userId    Int
+  notes    String?
+  interviewDate DateTime?
+  createdAt DateTime @default(now())
+
+  
+  user      User     @relation(fields: [userId], references: [id])
 }
