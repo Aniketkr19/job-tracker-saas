@@ -12,9 +12,12 @@ model User {
   name      String
   email     String   @unique
   password  String
+  avatarUrl String?  
+   
   createdAt DateTime @default(now())
 
   jobs Job[]
+  documents Document[]
 }
 
 model Job {
@@ -24,9 +27,27 @@ model Job {
   status    String
   userId    Int
   notes    String?
+  location      String?
+  description   String?
+  sourceUrl     String?
+
+  
   interviewDate DateTime?
   createdAt DateTime @default(now())
 
   
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Document {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String
+  fileName  String
+  filePath  String
+  fileType  String
+  fileSize  Int
+  role      String   @default("General")
+  createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
 }

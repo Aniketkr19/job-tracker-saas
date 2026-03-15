@@ -6,6 +6,10 @@ function Footer() {
       textAlign: "center",
       borderTop: "1px solid #ddd"
     }}>
+
+      Privacy
+      Contact
+      Terms
       <p>© 2026 JobTracker — Built for smarter career tracking</p>
     </footer>
   );

@@ -7,17 +7,21 @@ function StatusBadge({ status }) {
     Rejected: "#ef4444"
   };
 
+  const color = colors[status] || "#6b7280";
+
   return (
-    <span style={{
-      background: colors[status] || "#6b7280",
-      color: "white",
-      padding: "6px 14px",
-      borderRadius: 20,
-      fontSize: 12,
-      boxShadow: `0 0 12px ${colors[status]}`,
-      display: "inline-block",
-      marginTop: 8
-    }}>
+    <span
+      style={{
+        background: `${color}20`,
+        color: color,
+        padding: "6px 14px",
+        borderRadius: 20,
+        fontSize: 12,
+        fontWeight: 600,
+        border: `1px solid ${color}40`,
+        display: "inline-block"
+      }}
+    >
       {status}
     </span>
   );

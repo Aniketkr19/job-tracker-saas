@@ -1,17 +1,24 @@
 const express = require("express");
 const router = express.Router();
-const { registerUser, loginUser , getProfile, addJob, getJobs, deleteJob, changePassword, updateJob} = require("../controllers/userController");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" }); // saves to /uploads folder
+
+const { registerUser, loginUser, getProfile, changePassword,updateName, deleteAccount, uploadAvatar } = require("../controllers/userController");
 const authMiddleware = require("../middleware/authMiddleware");
 
-router.get("/profile", authMiddleware, getProfile);
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.post("/jobs", authMiddleware, addJob);
-router.get("/jobs", authMiddleware, getJobs);
-router.delete("/jobs/:id", authMiddleware, deleteJob);
+
 router.get("/profile", authMiddleware, getProfile);
 router.put("/change-password", authMiddleware, changePassword);
-router.put("/jobs/:id", authMiddleware, updateJob);
+
+
+
+// ADD these two lines
+router.put("/update-name", authMiddleware, updateName);
+router.delete("/delete-account", authMiddleware, deleteAccount);
+
+router.put("/upload-avatar", authMiddleware, upload.single("avatar"), uploadAvatar);
 
 module.exports = router;
