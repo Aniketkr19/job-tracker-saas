@@ -1,86 +1,268 @@
-# JobTracker SaaS
+# 🚀 Job Tracker SaaS
 
-A full-stack job application tracking platform built with React, Express, Prisma, and SQLite. Track your job applications, manage resumes, and stay organized during your job search.
+A full-stack Job Application Management Platform that helps users track job applications, manage resumes, organize documents, and stay on top of their job search — all from one dashboard.
 
----
-
-## 🚀 Features
-
-- **Dashboard** — Stats overview, upcoming interviews, recent activity feed
-- **Applications Pipeline** — Kanban board with drag-and-drop status management
-- **Documents** — Upload and organize resumes by role (stored on server)
-- **Settings** — Preferences, dashboard customization, password change, data export
-- **Profile** — Avatar upload, name update, account management
-- **Chrome Extension** — Save jobs from Naukri, Indeed, LinkedIn, Wellfound, Glassdoor, Internshala with one click
-- **Dark / Light Mode** — Toggle between themes, persists across sessions
-- **JWT Authentication** — Secure login with token-based auth
+This project simulates a real SaaS platform used by job seekers to manage their entire job search efficiently.
 
 ---
 
-## 🛠 Tech Stack
+## 🖥️ Demo Overview
+
+The platform allows users to:
+
+- Track and manage job applications from one dashboard
+- Drag and drop applications across pipeline stages
+- Upload and organize resumes and documents by role
+- Save jobs directly from job sites using a Chrome Extension
+- Customize the dashboard and preferences via Settings
+- Switch between Dark and Light mode
+- Manage profile, avatar, and account security
+
+---
+
+## ✨ Features
+
+### 🔐 Authentication
+- User Registration and Login
+- JWT-based authentication
+- Password hashing using bcrypt
+- Protected routes using middleware
+- Avatar upload and profile management
+
+---
+
+### 📊 Dashboard
+Displays a complete overview of job search progress:
+
+- Total Applications, Interviews, Offers, Rejections
+- Response Rate calculation
+- Upcoming Interviews panel
+- Recent Activity feed
+- Filter jobs by status (All / Applied / Interview / Offer / Rejected)
+- Search jobs by title or company
+
+---
+
+### 📌 Job Management
+Users can:
+
+- Add new job applications manually
+- Edit job details
+- Delete applications
+- Add notes and job descriptions
+- Track application status
+- Attach job posting URL
+
+Example fields:
+
+Role  
+Company  
+Location  
+Status  
+Notes  
+Job Description  
+Source URL  
+Interview Date  
+
+---
+
+### 🧩 Applications Pipeline (Kanban Board)
+
+Interactive drag-and-drop job pipeline similar to Trello.
+
+Stages include:
+
+Applied  
+Interview  
+Offer  
+Rejected  
+
+Users can drag job cards between stages to update application status.
+Clicking a card opens a detail drawer with full job info and quick status change buttons.
+
+Built using:
+
+DnD Kit (Drag and Drop)
+
+---
+
+### 📁 Documents Manager
+
+Users can upload and organize resumes and documents by role.
+
+Features:
+
+- Drag and drop file upload
+- Tag documents with job roles (e.g. "Frontend Dev", "SDE-2")
+- Filter documents by role
+- Search documents by name
+- Rename documents inline
+- Download and delete documents
+- Files stored securely on the server
+
+---
+
+### 🔌 Chrome Extension
+
+Save jobs from popular job sites with one click.
+
+Supported sites:
+
+- Naukri.com
+- Indeed.com
+- LinkedIn.com
+- Wellfound.com
+- Glassdoor.com
+- Internshala.com
+
+Automatically extracts job title, company, location, description, and source URL.
+Saved jobs appear on the dashboard instantly.
+
+---
+
+### ⚙️ Settings
+
+- Preferred job roles and locations
+- Expected salary range
+- Job type preference (Full-time, Internship, Contract, etc.)
+- Dashboard section visibility toggles
+- Default filter selection
+- Change password
+- Export all jobs as CSV
+- Clear rejected jobs
+- Reset preferences
+
+---
+
+### 🌙 Dark / Light Mode
+
+Toggle between dark and light themes from the top bar.
+Theme preference persists across sessions using localStorage.
+
+---
+
+### 📈 Analytics Dashboard
+
+Visualizes job search progress using charts.
+
+Includes:
+
+- Donut Chart for application distribution
+- Bar Chart for status comparison
+- Summary statistics cards
+
+Charts built using:
+
+Recharts
+
+---
+
+### 📅 Interview Calendar
+
+Users can schedule and view interviews in a calendar interface.
+
+Features:
+
+- Monthly calendar view
+- Displays company and role for each interview
+- Automatically syncs with job entries
+
+Built using:
+
+React Big Calendar
+
+---
+
+### 👤 Profile Management
+
+Users can:
+
+- Upload and update profile avatar
+- Update display name
+- Change password securely
+- Delete account
+
+---
+
+## 🏗️ Tech Stack
 
 ### Frontend
-- React 18 + Vite
-- React Router v6
-- Axios
-- @dnd-kit (drag and drop)
-- Lucide React (icons)
 
-### Backend
-- Node.js + Express
-- Prisma ORM
-- SQLite (local) → PostgreSQL (production)
-- Multer (file uploads)
-- JWT + bcrypt (auth)
+React 18  
+Vite  
+React Router v6  
+DnD Kit (Drag and Drop)  
+Recharts (Charts)  
+React Big Calendar  
+Axios  
+Lucide React (Icons)  
 
 ---
 
-## 📁 Project Structure
+### Backend
+
+Node.js  
+Express.js  
+JWT Authentication  
+bcrypt  
+Multer (File Uploads)  
+
+---
+
+### Database
+
+SQLite (Development)  
+PostgreSQL (Production — coming soon)  
+Prisma ORM  
+
+---
+
+## 📂 Project Structure
 
 ```
-job-tracker/
-├── client/                    # React frontend
+job-tracker-saas/
+│
+├── client/
 │   ├── src/
 │   │   ├── api/
-│   │   │   └── axios.js       # Axios instance with auth interceptor
+│   │   │   └── axios.js
 │   │   ├── components/
 │   │   │   ├── auth/
 │   │   │   │   └── ProtectedRoute.jsx
 │   │   │   ├── layout/
-│   │   │   │   ├── AppLayout.jsx    # Main layout with topbar + sidebar
-│   │   │   │   └── Sidebar.jsx      # Navigation sidebar
+│   │   │   │   ├── AppLayout.jsx
+│   │   │   │   └── Sidebar.jsx
 │   │   │   └── ui/
-│   │   ├── pages/
-│   │   │   ├── app/
-│   │   │   │   ├── Dashboard.jsx
-│   │   │   │   ├── Applications.jsx
-│   │   │   │   ├── Documents.jsx
-│   │   │   │   ├── Settings.jsx
-│   │   │   │   └── Profile.jsx
-│   │   │   └── public/
-│   │   │       ├── Login.jsx
-│   │   │       └── Register.jsx
-│   │   └── App.jsx
-│   └── package.json
+│   │   └── pages/
+│   │       ├── app/
+│   │       │   ├── Dashboard.jsx
+│   │       │   ├── Applications.jsx
+│   │       │   ├── Documents.jsx
+│   │       │   ├── Settings.jsx
+│   │       │   ├── Analytics.jsx
+│   │       │   ├── Calendar.jsx
+│   │       │   └── Profile.jsx
+│   │       └── public/
+│   │           ├── Login.jsx
+│   │           └── Register.jsx
 │
-├── server/                    # Express backend
+├── server/
 │   ├── controllers/
-│   │   ├── userController.js  # Auth + job + avatar functions
-│   │   └── documentController.js  # Document upload/download
+│   │   ├── userController.js
+│   │   └── documentController.js
 │   ├── middleware/
-│   │   └── authMiddleware.js  # JWT verification
+│   │   └── authMiddleware.js
 │   ├── prisma/
-│   │   ├── schema.prisma      # Database models
+│   │   ├── schema.prisma
 │   │   └── migrations/
 │   ├── routes/
 │   │   ├── userRoutes.js
 │   │   ├── jobRoutes.js
 │   │   └── documentRoutes.js
-│   ├── uploads/               # Uploaded files (gitignored)
-│   ├── index.js               # Express server entry
-│   └── package.json
+│   ├── uploads/
+│   └── index.js
 │
-├── jobtracker-extension/      # Chrome extension
+├── jobtracker-extension/
 │   ├── manifest.json
 │   ├── content.js
 │   ├── popup.html
@@ -92,158 +274,142 @@ job-tracker/
 
 ---
 
-## ⚙️ Local Setup
+## ⚙️ Installation
 
-### Prerequisites
-- Node.js 18+
-- npm
+### Clone Repository
 
-### 1. Clone the repo
-```bash
+```
 git clone https://github.com/Aniketkr19/job-tracker-saas.git
-cd job-tracker-saas
 ```
 
-### 2. Setup Backend
-```bash
+---
+
+### Backend Setup
+
+```
 cd server
 npm install
 ```
 
-Create a `.env` file in the `server/` folder:
+Create a `.env` file inside the `server/` folder:
+
 ```
 DATABASE_URL="file:./dev.db"
 JWT_SECRET="your_secret_key_here"
 ```
 
-Run database migrations:
-```bash
-npx prisma migrate dev
-```
+Run migrations and start server:
 
-Start the server:
-```bash
+```
+npx prisma migrate dev
 node index.js
 ```
-Server runs on **http://localhost:5000**
 
-### 3. Setup Frontend
-```bash
+Server runs on http://localhost:5000
+
+---
+
+### Frontend Setup
+
+```
 cd client
 npm install
 npm run dev
 ```
-Frontend runs on **http://localhost:5173**
+
+Frontend runs on http://localhost:5173
 
 ---
 
-## 🔌 Chrome Extension Setup
+### Chrome Extension Setup
 
-1. Open Chrome → go to `chrome://extensions`
-2. Enable **Developer Mode** (top right)
-3. Click **Load unpacked**
-4. Select the `jobtracker-extension/` folder
-5. Click the **J** icon in toolbar → Login with your account
-6. Visit any job on Naukri, Indeed, LinkedIn etc.
-7. Click **＋ Save this Job** button that appears on the page
-
-### Supported Job Sites
-- Naukri.com
-- Indeed.com
-- LinkedIn.com
-- Wellfound.com
-- Glassdoor.com
-- Internshala.com
+1. Open Chrome and go to chrome://extensions
+2. Enable Developer Mode (top right toggle)
+3. Click Load unpacked
+4. Select the jobtracker-extension folder
+5. Click the J icon in the toolbar
+6. Login with your JobTracker account
+7. Visit any job listing on a supported site
+8. Click the Save this Job button that appears on the page
 
 ---
 
 ## 🗄️ Database Schema
 
-```prisma
-model User {
-  id        Int        @id @default(autoincrement())
-  name      String
-  email     String     @unique
-  password  String
-  avatarUrl String?
-  createdAt DateTime   @default(now())
-  jobs      Job[]
-  documents Document[]
-}
+Models:
 
-model Job {
-  id            Int       @id @default(autoincrement())
-  title         String
-  company       String
-  status        String    # Applied | Interview | Offer | Rejected
-  userId        Int
-  notes         String?
-  location      String?
-  description   String?
-  sourceUrl     String?
-  interviewDate DateTime?
-  createdAt     DateTime  @default(now())
-}
-
-model Document {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  name      String
-  fileName  String
-  filePath  String
-  fileType  String
-  fileSize  Int
-  role      String   @default("General")
-  createdAt DateTime @default(now())
-}
-```
+User — id, name, email, password, avatarUrl, createdAt  
+Job — id, title, company, status, location, notes, description, sourceUrl, interviewDate, userId  
+Document — id, name, fileName, filePath, fileType, fileSize, role, userId, createdAt  
 
 ---
 
 ## 🔐 API Endpoints
 
-### Auth
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/users/register` | Register new user |
-| POST | `/api/users/login` | Login + get JWT token |
-| GET | `/api/users/profile` | Get logged-in user profile |
-| PUT | `/api/users/change-password` | Change password |
-| PUT | `/api/users/update-name` | Update display name |
-| PUT | `/api/users/upload-avatar` | Upload profile photo |
-| DELETE | `/api/users/delete-account` | Delete account |
+### Auth Routes
+POST /api/users/register  
+POST /api/users/login  
+GET /api/users/profile  
+PUT /api/users/change-password  
+PUT /api/users/update-name  
+PUT /api/users/upload-avatar  
+DELETE /api/users/delete-account  
 
-### Jobs
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/jobs` | Get all jobs for user |
-| POST | `/api/jobs` | Add new job |
-| PUT | `/api/jobs/:id` | Update job |
-| DELETE | `/api/jobs/:id` | Delete job |
+### Job Routes
+GET /api/jobs  
+POST /api/jobs  
+PUT /api/jobs/:id  
+DELETE /api/jobs/:id  
 
-### Documents
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/documents` | Get all documents for user |
-| POST | `/api/documents/upload` | Upload documents (multipart) |
-| PUT | `/api/documents/:id` | Rename or change role |
-| DELETE | `/api/documents/:id` | Delete document |
-| GET | `/api/documents/:id/download` | Download document |
+### Document Routes
+GET /api/documents  
+POST /api/documents/upload  
+PUT /api/documents/:id  
+DELETE /api/documents/:id  
+GET /api/documents/:id/download  
 
 ---
 
-## 🚀 Deployment
+## 📊 Key Learning Outcomes
 
-> Coming soon — Railway (backend) + Vercel (frontend) + PostgreSQL
+This project demonstrates:
+
+- Full-stack application development
+- REST API design and implementation
+- JWT Authentication and authorization
+- Database management using Prisma ORM
+- File upload handling with Multer
+- Interactive UI with drag-and-drop systems
+- Chrome Extension development
+- Data visualization with Recharts
+- Calendar-based scheduling
+- Dark/Light theme implementation
 
 ---
 
-## 📸 Screenshots
+## 🚀 Future Improvements
 
-> Add screenshots here after deployment
+Possible upgrades include:
+
+- PostgreSQL for production database
+- Deploy backend on Railway
+- Deploy frontend on Vercel
+- Cloudinary for file storage
+- Email notifications for upcoming interviews
+- AI-based job application insights
+- Automated recruiter follow-up reminders
 
 ---
 
-## 📝 License
+## 👨‍💻 Author
 
-MIT
+Aniket Kumar
+
+GitHub  
+https://github.com/Aniketkr19
+
+---
+
+## ⭐ If you like this project
+
+Give it a ⭐ on GitHub!
