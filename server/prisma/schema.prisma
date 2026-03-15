@@ -3,51 +3,49 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  avatarUrl String?  
-   
-  createdAt DateTime @default(now())
+// Models stay exactly the same EXCEPT:
+// Remove filePath from Document — files now live on Cloudinary
 
-  jobs Job[]
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String     @unique
+  password  String
+  avatarUrl String?
+  createdAt DateTime   @default(now())
+  jobs      Job[]
   documents Document[]
 }
 
 model Job {
-  id        Int      @id @default(autoincrement())
-  title     String
-  company   String
-  status    String
-  userId    Int
-  notes    String?
+  id            Int       @id @default(autoincrement())
+  title         String
+  company       String
+  status        String
+  userId        Int
+  notes         String?
   location      String?
   description   String?
   sourceUrl     String?
-
-  
   interviewDate DateTime?
-  createdAt DateTime @default(now())
-
-  
-  user      User     @relation(fields: [userId], references: [id])
+  createdAt     DateTime  @default(now())
+  user          User      @relation(fields: [userId], references: [id])
 }
 
 model Document {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  name      String
-  fileName  String
-  filePath  String
-  fileType  String
-  fileSize  Int
-  role      String   @default("General")
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  name        String
+  fileName    String
+  fileUrl     String   // ← replaces filePath (Cloudinary URL)
+  publicId    String   // ← Cloudinary public_id (needed for deletion)
+  fileType    String
+  fileSize    Int
+  role        String   @default("General")
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
 }

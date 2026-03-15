@@ -1,47 +1,34 @@
 // server/controllers/documentController.js
-//
-// Handles all document/resume upload logic.
-// Uses multer for file storage — same pattern as avatar uploads.
-//
-// FILES ARE STORED AT:
-//   server/uploads/documents/<userId>-<timestamp>-<originalname>
-//
-// ROUTES HANDLED:
-//   POST   /api/documents/upload    — upload one or more files
-//   GET    /api/documents           — get all documents for logged-in user
-//   PUT    /api/documents/:id       — rename or change role of a document
-//   DELETE /api/documents/:id       — delete a document (file + DB record)
+// Files are now stored on Cloudinary instead of local disk.
 
 const prisma = require("../prismaClient");
 const multer = require("multer");
-const path   = require("path");
-const fs     = require("fs");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("cloudinary").v2;
+const path = require("path");
 
-// ── Multer storage config ────────────────────────────────────
-// Files land in server/uploads/documents/
-// Filename: <userId>-<timestamp>-<originalname>
-// This prevents filename collisions between users.
-
-const storage = multer.diskStorage({
-
-  destination: (req, file, cb) => {
-    const dir = path.join(__dirname, "../uploads/documents");
-    // Create folder if it doesn't exist
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-
-  filename: (req, file, cb) => {
-    // e.g. "42-1710000000000-my-resume.pdf"
-    const safeName = file.originalname.replace(/\s+/g, "-");
-    cb(null, `${req.userId}-${Date.now()}-${safeName}`);
-  },
-
+// ── Cloudinary config ────────────────────────────────────────
+// Set these in your Render environment variables
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Only allow these file types
+// ── Multer + Cloudinary storage ──────────────────────────────
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => ({
+    folder: `job-tracker/documents/${req.userId}`,
+    // Use original filename (without extension — Cloudinary adds it)
+    public_id: `${Date.now()}-${path.parse(file.originalname).name.replace(/\s+/g, "-")}`,
+    // Tell Cloudinary to treat it as a raw file (for PDFs, DOCs etc.)
+    resource_type: "raw",
+    // Keep original format
+    format: path.extname(file.originalname).replace(".", ""),
+  }),
+});
+
 const fileFilter = (req, file, cb) => {
   const allowed = [
     "application/pdf",
@@ -59,22 +46,15 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Max 5MB per file, up to 10 files at once
 const upload = multer({
   storage,
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-// Export the multer middleware so routes can use it
-// Usage in route: router.post("/upload", authMiddleware, uploadMiddleware, uploadDocuments)
 const uploadMiddleware = upload.array("files", 10);
 
 // ── UPLOAD DOCUMENTS ─────────────────────────────────────────
-// POST /api/documents/upload
-// Body (multipart/form-data):
-//   files  — one or more files
-//   role   — string tag e.g. "Frontend Dev" (optional, defaults to "General")
 const uploadDocuments = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -83,15 +63,15 @@ const uploadDocuments = async (req, res) => {
 
     const role = req.body.role || "General";
 
-    // Save each file's metadata to the database
     const saved = await Promise.all(
       req.files.map((file) =>
         prisma.document.create({
           data: {
             userId:   req.userId,
-            name:     path.parse(file.originalname).name, // name without extension
+            name:     path.parse(file.originalname).name,
             fileName: file.originalname,
-            filePath: file.path,                           // absolute path on disk
+            fileUrl:  file.path,          // Cloudinary delivers a full HTTPS URL here
+            publicId: file.filename,      // Cloudinary public_id (for deletion)
             fileType: file.mimetype,
             fileSize: file.size,
             role,
@@ -109,10 +89,6 @@ const uploadDocuments = async (req, res) => {
 };
 
 // ── GET ALL DOCUMENTS ─────────────────────────────────────────
-// GET /api/documents
-// Returns all documents belonging to the logged-in user,
-// newest first. Does NOT return the file content — only metadata.
-// The frontend uses the /api/documents/:id/download route to get the file.
 const getDocuments = async (req, res) => {
   try {
     const documents = await prisma.document.findMany({
@@ -126,16 +102,12 @@ const getDocuments = async (req, res) => {
   }
 };
 
-// ── UPDATE DOCUMENT (rename / change role) ───────────────────
-// PUT /api/documents/:id
-// Body: { name?, role? }
-// Only the owner can update their document.
+// ── UPDATE DOCUMENT ───────────────────────────────────────────
 const updateDocument = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const { name, role } = req.body;
 
-    // Make sure this document belongs to the logged-in user
     const existing = await prisma.document.findFirst({
       where: { id, userId: req.userId },
     });
@@ -161,14 +133,11 @@ const updateDocument = async (req, res) => {
 };
 
 // ── DELETE DOCUMENT ───────────────────────────────────────────
-// DELETE /api/documents/:id
-// Deletes the file from disk AND removes the DB record.
-// Only the owner can delete their document.
+// Deletes from Cloudinary AND removes the DB record.
 const deleteDocument = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
 
-    // Make sure this document belongs to the logged-in user
     const existing = await prisma.document.findFirst({
       where: { id, userId: req.userId },
     });
@@ -177,12 +146,11 @@ const deleteDocument = async (req, res) => {
       return res.status(404).json({ message: "Document not found" });
     }
 
-    // Delete the actual file from disk
-    if (fs.existsSync(existing.filePath)) {
-      fs.unlinkSync(existing.filePath);
-    }
+    // Delete from Cloudinary using the stored public_id
+    await cloudinary.uploader.destroy(existing.publicId, {
+      resource_type: "raw",
+    });
 
-    // Delete the database record
     await prisma.document.delete({ where: { id } });
 
     res.json({ message: "Document deleted" });
@@ -193,10 +161,8 @@ const deleteDocument = async (req, res) => {
   }
 };
 
-// ── DOWNLOAD DOCUMENT ─────────────────────────────────────────
-// GET /api/documents/:id/download
-// Streams the file back to the browser with correct headers
-// so it downloads with the original filename.
+// ── DOWNLOAD / VIEW DOCUMENT ──────────────────────────────────
+// No streaming needed — just redirect to the Cloudinary URL.
 const downloadDocument = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -209,14 +175,8 @@ const downloadDocument = async (req, res) => {
       return res.status(404).json({ message: "Document not found" });
     }
 
-    if (!fs.existsSync(doc.filePath)) {
-      return res.status(404).json({ message: "File not found on server" });
-    }
-
-    // Set headers so browser downloads with original filename
-    res.setHeader("Content-Disposition", `attachment; filename="${doc.fileName}"`);
-    res.setHeader("Content-Type", doc.fileType);
-    res.sendFile(doc.filePath);
+    // Redirect browser to Cloudinary's direct URL
+    res.redirect(doc.fileUrl);
 
   } catch (error) {
     console.error("downloadDocument error:", error);
