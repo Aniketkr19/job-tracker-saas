@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import API from "../../api/axios";
@@ -9,6 +9,14 @@ import Footer from "../../components/layout/Footer";
 function Landing(){
 
 const navigate = useNavigate();
+
+// ── MOBILE DETECTION (only addition) ──
+const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth < 768);
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
 
 const [showLogin,setShowLogin] = useState(false);
 const [showSignup,setShowSignup] = useState(false);
@@ -74,7 +82,8 @@ return(
 <div style={{
 minHeight:"100vh",
 background:"linear-gradient(135deg,#020617,#020617,#0f172a)",
-color:"white"
+color:"white",
+overflowX:"hidden"
 }}>
 
 <Header
@@ -96,19 +105,21 @@ setShowSignup(true);
 {/* HERO SECTION */}
 
 <div style={{
-display:"flex",
-flexWrap:"wrap",
-justifyContent:"space-between",
+display:"grid",
+gridTemplateColumns: isMobile ? "1fr" : "1fr 400px",
 alignItems:"center",
-padding:"120px 8%",
-gap:40
+padding: isMobile ? "60px 20px 40px" : "100px 8%",
+gap: 40,
+maxWidth:1200,
+margin:"0 auto",
+boxSizing:"border-box",
+minHeight: isMobile ? "auto" : "80vh",
 }}>
 
 <motion.div
 initial={{opacity:0,y:40}}
 animate={{opacity:1,y:0}}
 transition={{duration:0.7}}
-
 >
 
 <h1 style={{
@@ -147,10 +158,9 @@ fontSize:"16px",
 cursor:"pointer",
 boxShadow:"0 0 20px rgba(52,211,153,0.5)"
 }}
-
 >
-
-Get Started </button>
+Get Started
+</button>
 
 </motion.div>
 
@@ -161,19 +171,18 @@ initial={{opacity:0,x:40}}
 animate={{opacity:1,x:0}}
 transition={{duration:0.7}}
 style={{
-width:"380px",
+width: isMobile ? "100%" : "380px",
 padding:"30px",
 borderRadius:"20px",
 background:"rgba(255,255,255,0.05)",
 backdropFilter:"blur(20px)",
-border:"1px solid rgba(255,255,255,0.08)"
+border:"1px solid rgba(255,255,255,0.08)",
+boxSizing:"border-box"
 }}
-
 >
 
 <h3>Login</h3>
 
-{/* Change these lines in your Login Modal section */}
 <input
   placeholder="Email"
   value={email}
@@ -183,9 +192,9 @@ border:"1px solid rgba(255,255,255,0.08)"
     padding: "12px",
     marginTop: "10px",
     borderRadius: "8px",
-    border: "1px solid rgba(255,255,255,0.1)", // Light border
-    background: "#1f2937", // Darker background for the input
-    color: "white", // THIS MAKES THE TEXT VISIBLE
+    border: "1px solid rgba(255,255,255,0.1)",
+    background: "#1f2937",
+    color: "white",
     outline: "none",
     boxSizing: "border-box"
   }}
@@ -203,7 +212,7 @@ border:"1px solid rgba(255,255,255,0.08)"
     borderRadius: "8px",
     border: "1px solid rgba(255,255,255,0.1)",
     background: "#1f2937",
-    color: "white", // THIS MAKES THE TEXT VISIBLE
+    color: "white",
     outline: "none",
     boxSizing: "border-box"
   }}
@@ -218,12 +227,12 @@ padding:"12px",
 background:"#22c55e",
 border:"none",
 borderRadius:"8px",
-fontWeight:"bold"
+fontWeight:"bold",
+color:"white"
 }}
-
 >
-
-Log In </button>
+Log In
+</button>
 
 </motion.div>
 
@@ -231,8 +240,11 @@ Log In </button>
 
 {/* FEATURES SECTION */}
 
-<div className="container" style={{
-padding:"80px 0"
+<div style={{
+padding: isMobile ? "60px 20px" : "80px 8%",
+maxWidth:1200,
+margin:"0 auto",
+boxSizing:"border-box"
 }}>
 
 <h2 style={{
@@ -245,7 +257,7 @@ Powerful Features
 
 <div style={{
 display:"grid",
-gridTemplateColumns:"repeat(auto-fit, minmax(250px,1fr))",
+gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(250px,1fr))",
 gap:"30px"
 }}>
 
@@ -287,7 +299,9 @@ background:"rgba(0,0,0,0.7)",
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
-zIndex:200
+zIndex:200,
+padding:16,
+boxSizing:"border-box"
 }}>
 
 <div style={{
@@ -312,10 +326,9 @@ right:"15px",
 cursor:"pointer",
 fontSize:"18px"
 }}
-
 >
-
-✖ </span>
+✖
+</span>
 
 <h3>Login</h3>
 
@@ -343,10 +356,9 @@ padding:"10px",
 background:"#22c55e",
 border:"none"
 }}
-
 >
-
-Login </button>
+Login
+</button>
 
 </div>
 
@@ -368,7 +380,9 @@ background:"rgba(0,0,0,0.7)",
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
-zIndex:200
+zIndex:200,
+padding:16,
+boxSizing:"border-box"
 }}>
 
 <div style={{
@@ -394,14 +408,12 @@ right:"15px",
 cursor:"pointer",
 fontSize:"18px"
 }}
-
 >
-
-✖ </span>
+✖
+</span>
 
 <h3>Create Account</h3>
 
-{/* Change these lines in your Signup Modal section */}
 <input
   placeholder="Name"
   value={name}
@@ -411,7 +423,7 @@ fontSize:"18px"
     padding: "12px", 
     marginTop: "10px",
     background: "#1f2937",
-    color: "white", // Ensure text is white
+    color: "white",
     border: "1px solid rgba(255,255,255,0.1)",
     borderRadius: "8px",
     boxSizing: "border-box"
@@ -427,7 +439,7 @@ fontSize:"18px"
     padding: "12px", 
     marginTop: "10px",
     background: "#1f2937",
-    color: "white", // Ensure text is white
+    color: "white",
     border: "1px solid rgba(255,255,255,0.1)",
     borderRadius: "8px",
     boxSizing: "border-box"
@@ -444,7 +456,7 @@ fontSize:"18px"
     padding: "12px", 
     marginTop: "10px",
     background: "#1f2937",
-    color: "white", // Ensure text is white
+    color: "white",
     border: "1px solid rgba(255,255,255,0.1)",
     borderRadius: "8px",
     boxSizing: "border-box"
@@ -460,10 +472,9 @@ padding:"10px",
 background:"#22c55e",
 border:"none"
 }}
-
 >
-
-Sign Up </button>
+Sign Up
+</button>
 
 </div>
 
